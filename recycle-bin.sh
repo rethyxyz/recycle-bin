@@ -54,7 +54,8 @@ do
 	# Check if file empty
 	if [[ ! -s "$FILE" ]]
 	then
-		/usr/bin/rm -rf "$FILE" || /usr/bin/sudo /usr/bin/rm -rf "$FILE" && echo "Removed empty file $FILE"
+		/usr/bin/rm -rf "$FILE" || /usr/bin/sudo /usr/bin/rm -rf "$FILE"
+		echo "Removed empty file $FILE"
 		exit 1
 	fi
 
@@ -105,11 +106,7 @@ do
 			FILE_NUM=$((FILE_NUM+1))
 			NEW_FILE="${FILE_NUM}_${FILE}"
 		else
-			{
-			mv "$FILE" "$NEW_FILE"
-			FILE=$NEW_FILE
-			} > /dev/null 2>&1 && echo "Renamed file to $FILE"
-
+			{ mv "$FILE" "$NEW_FILE"; FILE=$NEW_FILE; } > /dev/null 2>&1
 			break
 		fi
 	done
