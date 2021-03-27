@@ -91,12 +91,12 @@ do
 			# GET FILE SIZE
 			FILE_SIZE=$(du -h -s -m "$FILE" | awk '{print $1}')
 
-			# CHECK IF OVER 20GB
 			if [[ -e "$TRASH_DIR/$NEW_FILE" ]]
 			then
 				handle_file_exists
 			fi
 
+			# CHECK IF OVER 20GB
 			if [[ $FILE_SIZE -ge 20000 ]]
 			then
 				handle_large_file

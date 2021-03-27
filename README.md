@@ -1,4 +1,4 @@
-# recycl-bin
+# recycle-bin
 A Windows like "recycle bin". Runs as an improved version of rm.
 
 ## How it works
