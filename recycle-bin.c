@@ -1,73 +1,102 @@
 //
-// if you're seeing this file, ignore it, as it is incomplete, 
-// and a shitshow thus far. As of right now, I'm recreating 
-// my recycle bin script in C.
+// Currently incomplete as of now.
 //
 
 #include <stdio.h>
+#include <dirent.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 
+// bool check_file_symlink(char *file) {
+	// struct stat stats; // Find out what the hell this does
+// 
+	// stat(file, &stats);
+// 
+	// Check for file existence
+	// if (stats.st_mode & F_OK)
+		// return true;
+// 
+	// return false;
+// }
+
 void handle_file_exists(char *file) { return; }
-void move_to_trash_bin(char *file) { return; }
+void handle_file_large(char *file) { return; }
+
+// TODO This function needs error checking
+void move_file_or_dir(char *file, char *newfile) {
+	rename(file, newfile);
+	printf("Moved file from %s to %s\n", file, newfile);
+}
+
+void display_help() {
+	printf("Usage: rb [FILE(s)]\n");
+	printf("Move (populated) file to ~/Trash/ (recycle bin).\n");
+}
 
 long long int check_file_size(char *file) {
-	printf("IM HERE\n");
-	struct stat stats; // Find out what the hell this does
+	// TODO Find out what the hell this does
+	struct stat stats;
 
 	stat(file, &stats);
 
 	// Check file size
 	if (stats.st_size || stats.st_size == 0) {
 		int file_size = stats.st_size;
-		printf("%i\n", file_size);
 
-		printf("Returning file_size\n");
+		printf("File %s of size %i bytes\n", file, file_size);
 		return file_size;
 	}
-	else {
-		printf("Returning -1\n");
-		return -1;
-	}
-}
 
-bool check_file_symlink(char *file) {
-	struct stat stats; // Find out what the hell this does
-
-	lstat(file, &stats);
-
-	// Check for file existence
-	if (stats.st_mode & F_OK)
-		return true;
-
-	return false;
+	return -1;
 }
 
 bool check_file_exists(char *file) {
-    // Exists
-    if (access(file, F_OK) == 0)
-	{
-        return true;
-    }
+	FILE *file_pointer = fopen(file, "r");
 
-    // Doesn't exist
-    return false;
+    if (file_pointer != NULL) {
+		fclose(file_pointer);
+        return true; // EXISTS
+	}
+
+	return false; // DOES NOT EXISTS
 }
 
+bool check_dir_exists(char *dir) {
+	DIR *dir_pointer = opendir(dir);
+
+	if (dir_pointer) {
+		closedir(dir_pointer);
+		return true;
+	}
+	else if (ENOENT == errno) {
+		return false;
+	}
+	else {
+		return false;
+	}
+}
 
 int main(int argc, char *argv[]) {
-	int i;
-    char *trash_directory = "/home/brody/Trash/";
+	// Add checks for dirs, and shortcuts (just add an || to every if statement)
+	unsigned int i;
+    char *trash_directory = "C:/Users/brody/Trash/";
 
-    if (argc < 1) {
+    if (argc <= 1) {
         printf(":: No filename(s) given\n");
         return 1;
     }
 
+	if (strcmp(argv[1], "-h") == 0) {
+		display_help();
+		return 0;
+	}
+
 	// If trash_directory doesn't exist
-    if (check_file_exists(trash_directory) == true) {
-        mkdir(trash_directory, 0755);
+    if (! check_dir_exists(trash_directory)) {
+        mkdir(trash_directory);
         printf("Made directory %s\n", trash_directory);
     }
 
@@ -75,25 +104,17 @@ int main(int argc, char *argv[]) {
 	for (i = 1; i < argc; i++) {
 		char *file = argv[i];
 
-		if (check_file_exists(file)) {
-			long long int file_size = check_file_size(file);
+		if (check_file_exists(file) || check_dir_exists(file)) {
+			char *file_trash = (char *) malloc(1 + strlen(trash_directory) + strlen(file));
+			strcpy(file_trash, trash_directory);
+			strcat(file_trash, file);
 
-			if (check_file_symlink(file) || file_size < 1) {
-				remove(file);
+			if (check_file_exists(file_trash)) {
+				handle_file_exists(file);
 			}
-			else {
-				if (check_file_exists(file)) {
-				}
 
-				if (file_size > 20000000000) {
-					handle_file_exists(file);
-				}
-				else {
-					move_to_trash_bin(file);
-				}
-			}
-		}
-		else {
+			move_file_or_dir(file, file_trash);
+		} else {
 			printf(":: Filename given doesn't exist\n");
 		}
 	}
