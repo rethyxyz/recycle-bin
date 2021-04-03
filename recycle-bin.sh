@@ -1,108 +1,94 @@
 #!/bin/bash
 #
-#	By: Brody Rethy
-#	Website: https://rethy.xyz
+# By: Brody Rethy
+# Website: https://rethy.xyz
 #
-#	Name: rethyxyz_recycle_bin.sh
-#	Version: 1.0
+# Name: recycle_bin.sh
 #
-#	Summary:
-#	A script to imitate the Windows recycle bin.
-#   I still need to implement some features, such
-#	as file compression, but I'll work on it in time.
+# Summary:
+# A script to imitate the Windows recycle bin.
+# I still need to implement some features, such
+# as file compression, but I'll work on it in time.
 #
 
-##
-## TODO Implement -h arg to prompt usage aid
-## TODO function for remove file
-## TODO function for move file to trash
-## TODO Check age of first file/dir in Trash dir. if older than 30 days, remove.
-##
+# TODO Implementation of -h/--help arg to prompt usage aid
 
-remove_file() {
-	{ /usr/bin/rm -rf "$FILE" > /dev/null 2>&1 && echo "Removed file $FILE" ; } || { /usr/bin/rm -rf "$FILE" > /dev/null 2>&1 && echo "Removed file $FILE using sudo" ; }
+display_help() {
+	echo "recycle-bin.sh [FILE] [FILE 2] [FILE 3]"
+	echo ""
+	echo "List the file/files or directory/directories you want to remove."
 }
 
-move_to_trash_bin() {
-	{ mv -iv "$FILE" "$TRASH_DIR" > /dev/null 2>&1 && echo "$FILE to $TRASH_DIR"; } || { /usr/bin/sudo mv -iv "$FILE" "$TRASH_DIR" > /dev/null 2>&1 && echo "$FILE to $TRASH_DIR using sudo"; }
+file_remove() {
+	{ /usr/bin/rm -rf "$FILE" > /dev/null 2>&1 && echo "$TEXT"; } || { /usr/bin/rm -rf "$FILE" > /dev/null 2>&1 && echo "$TEXT" using sudo; }
 }
 
-handle_large_file() {
-	echo "$FILE size is $FILE_SIZE, over 20GB, and too large for the recycle bin"
-	echo "Do you still want to remove it (this is permanent)? (y/n)"
-
-	while true
-	do
-		read CHOICE
-
-		case "$CHOICE" in
-			y | Y) { /usr/bin/rm -rf "$FILE" > /dev/null 2>&1 && echo "Removed $FILE of size $FILE_SIZE"; } || { /usr/bin/sudo /usr/bin/rm -rf "$FILE" > /dev/null 2>&1 && echo "Removed $FILE of size $FILE_SIZE using sudo"; } ;;
-			n | N) echo "Exit, file not removed." ;;
-			*) echo ":: Choice not recognized, try again"
-		esac
-	done
+file_to_trash() {
+	{ /usr/bin/mv "$FILE" "$RECYCLE_DIR" > /dev/null 2>&1 && echo "$FILE to $RECYCLE_DIR"; } || { /usr/bin/sudo /usr/bin/mv "$FILE" "$RECYCLE_DIR" > /dev/null 2>&1 && echo "$FILE to $RECYCLE_DIR using sudo"; }
 }
 
 handle_file_exists() {
 	FILE_NUM=0
 	NEW_FILE=$FILE
 
-	while [[ -e "$TRASH_DIR/$NEW_FILE" ]]
+	while [[ -e "$RECYCLE_DIR/$NEW_FILE" ]]
 	do
 		FILE_NUM=$((FILE_NUM+1))
 		NEW_FILE="${FILE_NUM}_${FILE}"
 	done
 
-	mv "$FILE" "$NEW_FILE" > /dev/null 2>&1 || /usr/bin/sudo mv "$FILE" "$NEW_FILE" > /dev/null 2>&1
+	/usr/bin/mv "$FILE" "$NEW_FILE" > /dev/null 2>&1 || /usr/bin/sudo /usr/bin/mv "$FILE" "$NEW_FILE" > /dev/null 2>&1
 
 	FILE=$NEW_FILE
 }
 
-TRASH_DIR="$HOME/.Trash/files/"
+RECYCLE_DIR="$HOME/.Trash/"
 
 # IF ARGS GIVEN
 if [[ $# -eq 0 ]]
 then
 	echo ":: No filename(s) given"; exit 1
+elif [[ $@ = "--help" ]] || [[ $@ = "-h" ]]
+then
+	display_help
+	exit 0
 fi
 
 FILES=( "$@" )
 
-# IF $TRASH_DIR ! EXISTS
-if [[ ! -d "$TRASH_DIR" ]]
+# IF $RECYCLE_DIR ! EXISTS
+if [[ ! -d "$RECYCLE_DIR" ]]
 then
-	mkdir -p "$TRASH_DIR"
+	mkdir -p "$RECYCLE_DIR"
 fi
 
 # Start main program loop
 #
-# The for loops loops through all args given, which should I'm assuming are
-# files.
+# Loops through all args given, which should I'm assuming are files. They don't
+# need to be, but I'm using it as the variable name none the less.
 for FILE in "${FILES[@]}"
 do
 	# CHECK IF FILE EXISTS
 	if [[ -e "$FILE" ]]
 	then
 		# CHECK IF LINK || EMPTY
-		if [[ -L "$FILE" ]] || [[ ! -s "$FILE" ]]
+		if [[ -L "$FILE" ]]
 		then
-			remove_file
+			TEXT="Removed link $FILE"; file_remove $TEXT
+		elif [[ ! -s "$FILE" ]]
+		then
+			TEXT="Removed empty file $FILE"; file_remove $TEXT
 		else
 			# GET FILE SIZE
 			FILE_SIZE=$(du -h -s -m "$FILE" | awk '{print $1}')
 
-			if [[ -e "$TRASH_DIR/$NEW_FILE" ]]
+			# CHECK IF FILE EXISTS IN RECYCLE BIN
+			if [[ -e "$RECYCLE_DIR/$NEW_FILE" ]]
 			then
 				handle_file_exists
 			fi
 
-			# CHECK IF OVER 20GB
-			if [[ $FILE_SIZE -ge 20000 ]]
-			then
-				handle_large_file
-			else
-				move_to_trash_bin
-			fi
+			file_to_trash
 		fi
 	else
 		echo ":: File given does not exist"

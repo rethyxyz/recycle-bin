@@ -1,10 +1,10 @@
 # recycle-bin
-A Windows like "recycle bin". Runs as an improved version of rm.
+A Windows like "recycle bin", and safer alternative to `rm`.
 
-## How it works
-It's just a `Bash` script. It runs the same as `rm`, but doesn't take any flags.  After it's "removed", it's placed into the .Trash/files directory.
+## What it does
+It's a simple `Bash` script. It runs the same as `rm`, but doesn't take any flags. After "removal", it's placed into the ~/.Trash directory.
 
 ## Basic usage
-- `recycle-bin.sh $FILE1 $FILE2 $FILE3 ...`
+- `recycle-bin.sh [FILE] [FILE 2] [FILE 3] ...`
 
-You may want to create an alias for `rm` to `recycle-bin.sh`.
+List the file/files or directory/directories you want to remove. You may want to create an alias in place of `rm` that points to `recycle-bin.sh`.
