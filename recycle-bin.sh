@@ -1,14 +1,14 @@
 #!/bin/bash
 #
-# By: Brody Rethy
-# Website: https://rethy.xyz
+## By: Brody Rethy
+## Website: https://rethy.xyz
 #
-# Name: recycle_bin.sh
+## Name: recycle_bin.sh
 #
-# Summary:
-# A script to imitate the Windows recycle bin.
-# I still need to implement some features, such
-# as file compression, but I'll work on it in time.
+## Summary:
+## A script to imitate the Windows recycle bin.
+## I still need to implement some features, such
+## as file compression, but I'll work on it in time.
 #
 
 # TODO Implementation of -h/--help arg to prompt usage aid
@@ -47,7 +47,10 @@ RECYCLE_DIR="$HOME/.Trash/"
 # IF ARGS GIVEN
 if [[ $# -eq 0 ]]
 then
-	echo ":: No filename(s) given"; exit 1
+	echo ":: No filename(s) given"
+	echo "::"
+	echo ":: Use --help/-h for help"
+	exit 1
 elif [[ $@ = "--help" ]] || [[ $@ = "-h" ]]
 then
 	display_help
@@ -92,6 +95,8 @@ do
 		fi
 	else
 		echo ":: File given does not exist"
+		echo "::"
+		echo ":: Use --help/-h for help"
 	fi
 done
 
