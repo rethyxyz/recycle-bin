@@ -1,20 +1,17 @@
 #!/bin/bash
 #
-## By: Brody Rethy
-## Website: https://rethy.xyz
+# By: Brody Rethy
+# Website: https://rethy.xyz
 #
-## Name: recycle_bin.sh
+# Name: rb.sh
 #
-## Summary:
-## A script to imitate the Windows recycle bin.
-## I still need to implement some features, such
-## as file compression, but I'll work on it in time.
-#
-
-# TODO Implementation of -h/--help arg to prompt usage aid
+# Summary:
+# A script to imitate the Windows recycle bin. I still need
+# to implement some features, such as file compression, but
+# I'll work on it in time.
 
 display_help() {
-	echo "recycle-bin.sh [FILE] [FILE 2] [FILE 3]"
+	echo "rb.sh [FILE] [FILE 2] [FILE 3] ..."
 	echo ""
 	echo "List the file/files or directory/directories you want to remove."
 }
