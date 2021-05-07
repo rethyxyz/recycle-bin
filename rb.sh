@@ -10,6 +10,7 @@
 # implement some features, such as compression, but I'll work on it in time.
 
 ITEMS=("$@")
+# This can be changed to anything.
 RECYCLE_DIR="$HOME/.Trash"
 
 display_help() {
@@ -49,13 +50,12 @@ for ITEM in "${ITEMS[@]}"; do
             { /usr/bin/rm -rf "$ITEM" && echo "Removed link \"$ITEM\"."; } || { /usr/bin/sudo /usr/bin/rm -rf "$ITEM" && echo "Removed link \"$ITEM\" using sudo."; }
         # Else if item empty, remove.
         elif [ ! -s "$ITEM" ]; then
-            TEXT="Removed empty file $ITEM"
-            { /usr/bin/rm -rf "$ITEM" && echo "$TEXT"; } || { /usr/bin/sudo /usr/bin/rm -rf "$ITEM" && echo "$TEXT" using sudo; }
+            { /usr/bin/rm -rf "$ITEM" && echo "Removed empty file \"$ITEM\"."; } || { /usr/bin/sudo /usr/bin/rm -rf "$ITEM" && echo "Removed empty file \"$ITEM\" using sudo."; }
         else
             # If item exists in recycle bin, rename until no match.
             if [ -e "$RECYCLE_DIR/$ITEM" ]; then handle_item_exists; fi
-            # Move file to trash
-            /usr/bin/mv "$ITEM" "$RECYCLE_DIR/$ITEM" && echo "Item \"$ITEM\" to \"$RECYCLE_DIR\"" || echo "Failed to move "
+            # Move file to trash.
+            { /usr/bin/mv "$ITEM" "$RECYCLE_DIR/$ITEM" && echo "Item \"$ITEM\" to \"$RECYCLE_DIR\""; } || { /usr/bin/sudo /usr/bin/mv "$ITEM" "$RECYCLE_DIR/$ITEM" && echo "Item \"$ITEM\" to \"$RECYCLE_DIR\" using sudo"; }
         fi
     else
         echo ":: Item \"$ITEM\" does not exist."
