@@ -8,9 +8,10 @@
 # Summary:
 # A simple script to imitate the Windows recycle bin on Unix. I still need to
 # implement some features, such as compression, but I'll work on it in time.
+#
 
 #############
-# VARIABLES #
+# Variables #
 #############
 
 # This can be changed to anything.
@@ -19,11 +20,11 @@ RECYCLE_DIR="$HOME/.Trash"
 
 
 #############
-# FUNCTIONS #
+# Functions #
 #############
 
 display_help() {
-    printf "rb.sh [ITEM] [ITEM 2] [ITEM 3] ...\n\n"
+    printf "%s [ITEM] [ITEM 2] [ITEM 3] ...\n\n" "$0"
     printf "List the item(s) you want to remove.\n"
 }
 
@@ -36,7 +37,8 @@ handle_item_exists() {
         NEW_ITEM="${ITEM_PREFIX}_${ITEM}"
     done
 
-    /usr/bin/mv "$ITEM" "$NEW_ITEM" || /usr/bin/sudo /usr/bin/mv "$ITEM" "$NEW_ITEM"
+    /usr/bin/mv "$ITEM" "$NEW_ITEM" \
+        || /usr/bin/sudo /usr/bin/mv "$ITEM" "$NEW_ITEM"
 
     ITEM=$NEW_ITEM
 }
@@ -48,20 +50,18 @@ handle_item_exists() {
 ########
 
 # If not args given, printf and exit.
-if [ $# -eq 0 ]; then
-    printf ":: No filename(s) given\n::"
-    display_help
-    exit 1
+[ $# -eq 0 ] \
+    && { printf ":: No filename(s) given\n"; display_help; exit 1; }
+
 # Else if an arg matches, call display_help.
-elif [ "$*" = "--help" ] || [ "$*" = "-h" ]; then
+if [ "$*" = "--help" ] || [ "$*" = "-h" ]; then
     display_help
     exit 0
 fi
 
 # If $RECYCLE_DIR doesn't exists, create it.
-if [ ! -d "$RECYCLE_DIR" ]; then
-    mkdir -p "$RECYCLE_DIR"
-fi
+[ ! -d "$RECYCLE_DIR" ] \
+    && mkdir -p "$RECYCLE_DIR"
 
 # Start main program loop. Loops through all args given.
 for ITEM in "$@"; do
@@ -87,9 +87,8 @@ for ITEM in "$@"; do
             }
         else
             # If item exists in recycle bin, rename until no match.
-            if [ -e "$RECYCLE_DIR/$ITEM" ]; then
-                handle_item_exists
-            fi
+            [ -e "$RECYCLE_DIR/$ITEM" ] \
+                && handle_item_exists
 
             # Move file to trash.
             {
