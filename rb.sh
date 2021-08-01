@@ -40,7 +40,7 @@ handle_item_exists() {
     /usr/bin/mv "$ITEM" "$NEW_ITEM" \
         || /usr/bin/sudo /usr/bin/mv "$ITEM" "$NEW_ITEM"
 
-    ITEM=$NEW_ITEM
+    ITEM="$NEW_ITEM"
 }
 
 
