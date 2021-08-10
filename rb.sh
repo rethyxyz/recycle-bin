@@ -15,7 +15,7 @@
 #############
 
 # This can be changed to anything.
-recycle_dir="$HOME/.Trash"
+RECYCLE_DIR="$HOME/.Trash"
 
 
 
@@ -24,23 +24,23 @@ recycle_dir="$HOME/.Trash"
 #############
 
 display_help() {
-    printf "%s [item] [item 2] [item 3] ...\n\n" "$0"
-    printf "List the item(s) you want to remove.\n"
+    printf "%s [ITEM] [ITEM 2] [ITEM 3] ...\n\n" "$0"
+    printf "List the ITEM(s) you want to remove.\n"
 }
 
-handle_item_exists() {
-    item_prefix=0
-    new_item=$item
+handle_ITEM_exists() {
+    ITEM_PREFIX=0
+    NEW_ITEM="$ITEM"
 
-    while [ -e "$recycle_dir/$new_item" ]; do
-        item_prefix=$((item_prefix+1))
-        new_item="${item_prefix}_${item}"
+    while [ -e "$RECYCLE_DIR/$NEW_ITEM" ]; do
+        ITEM_PREFIX=$((ITEM_PREFIX+1))
+        NEW_ITEM="${ITEM_PREFIX}_${ITEM}"
     done
 
-    /usr/bin/mv "$item" "$new_item" \
-        || /usr/bin/sudo /usr/bin/mv "$item" "$new_item"
+    /usr/bin/mv "$ITEM" "$NEW_ITEM" \
+        || /usr/bin/sudo /usr/bin/mv "$ITEM" "$NEW_ITEM"
 
-    item="$new_item"
+    ITEM="$NEW_ITEM"
 }
 
 
@@ -56,51 +56,52 @@ handle_item_exists() {
 # Else if an arg matches, call display_help.
 if [ "$*" = "--help" ] || [ "$*" = "-h" ]; then
     display_help
+
     exit 0
 fi
 
-# If $recycle_dir doesn't exists, create it.
-[ ! -d "$recycle_dir" ] \
-    && mkdir -p "$recycle_dir"
+# If $RECYCLE_DIR directory doesn't exists, create it.
+[ ! -d "$RECYCLE_DIR" ] && mkdir -p "$RECYCLE_DIR"
 
-# Start main program loop. Loops through all args given.
-for item in "$@"; do
-    # If item exists, continute.
-    if [ -e "$item" ]; then
+# Start main program loop. Loops through arguments given.
+for ITEM in "$@"; do
+    # If ITEM exists, continute.
+    if [ -e "$ITEM" ]; then
+
         # If link, remove.
-        if [ -L "$item" ]; then
+        if [ -L "$ITEM" ]; then
             {
-                /usr/bin/rm -rf "$item" \
-                && printf "Removed link \"%s\"\n." "$item"
+                /usr/bin/rm -rf "$ITEM" \
+                && printf "Removed link \"%s\"\n." "$ITEM"
             } || {
-                /usr/bin/sudo /usr/bin/rm -rf "$item" \
-                && printf "Removed link \"%s\" using sudo.\n" "$item"
+                /usr/bin/sudo /usr/bin/rm -rf "$ITEM" \
+                && printf "Removed link \"%s\" using sudo.\n" "$ITEM"
             }
-        # If item empty, remove.
-        elif [ ! -s "$item" ]; then
+        # If ITEM empty, remove.
+        elif [ ! -s "$ITEM" ]; then
             {
-                /usr/bin/rm -rf "$item" \
-                && printf "Removed empty file \"%s\".\n" "$item"
+                /usr/bin/rm -rf "$ITEM" \
+                && printf "Removed empty file \"%s\".\n" "$ITEM"
             } || {
-                /usr/bin/sudo /usr/bin/rm -rf "$item" \
-                && printf "Removed empty file \"%s\" using sudo.\n" "$item"
+                /usr/bin/sudo /usr/bin/rm -rf "$ITEM" \
+                && printf "Removed empty file \"%s\" using sudo.\n" "$ITEM"
             }
         else
-            # If item exists in recycle bin, rename until no match.
-            [ -e "$recycle_dir/$item" ] \
-                && handle_item_exists
+            # If ITEM exists in recycle bin, rename until no match.
+            [ -e "$RECYCLE_DIR/$ITEM" ] \
+                && handle_ITEM_exists
 
             # Move file to trash.
             {
-                /usr/bin/mv "$item" "$recycle_dir/$item" \
-                && printf "Item \"%s\" to \"%s\"\n" "$item" "$recycle_dir"
+                /usr/bin/mv "$ITEM" "$RECYCLE_DIR/" \
+                && printf "Item \"%s\" to \"%s\"\n" "$ITEM" "$RECYCLE_DIR"
             } || {
-                /usr/bin/sudo /usr/bin/mv "$item" "$recycle_dir/$item" \
-                && printf "Item \"%s\" to \"%s\" using sudo\n" "$item" "$recycle_dir"
+                /usr/bin/sudo /usr/bin/mv "$ITEM" "$RECYCLE_DIR/" \
+                && printf "Item \"%s\" to \"%s\" using sudo\n" "$ITEM" "$RECYCLE_DIR"
             }
         fi
     else
-        printf ":: Item \"%s\" does not exist.\n" "$item"
+        printf ":: Item \"%s\" does not exist.\n" "$ITEM"
         printf "::\n"
         printf ":: Use --help/-h for help.\n"
     fi
